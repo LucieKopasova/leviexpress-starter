@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './style.css';
 
+/* 
+Při kliknutí na tlačítko „Vyhledat spoj“ se volá funkce handleSubmit, která vypíše údaje zadané uživatelem. Nyní výpis do konzole nahradíte voláním API. Bude se volat následující API endpoint
+ */
 export const JourneyPicker = ({ onJourneyChange }) => {
   const [fromCity, setFromCity] = useState('');
   const [toCity, setToCity] = useState('');
@@ -28,9 +31,14 @@ export const JourneyPicker = ({ onJourneyChange }) => {
     fetchDates();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(fromCity, toCity, date);
+    const response = await fetch(
+      `https://apps.kodim.cz/daweb/leviexpress/api/journey?fromCity=${fromCity}&toCity=${toCity}&date=${date}`,
+    );
+    const data = await response.json();
+    const results = data.results;
+    onJourneyChange(results);
   };
 
   const CityOptions = ({ value, onChange, dataCities }) => {
@@ -39,7 +47,7 @@ export const JourneyPicker = ({ onJourneyChange }) => {
         <select value={value} onChange={onChange}>
           <option value="">Vyberte</option>
           {dataCities.map((city) => (
-            <option key={city.code} value={city.name}>
+            <option key={city.code} value={city.code}>
               {city.name}
             </option>
           ))}
@@ -75,17 +83,6 @@ export const JourneyPicker = ({ onJourneyChange }) => {
               onChange={(e) => setFromCity(e.target.value)}
               dataCities={cities}
             />
-            {/* <select
-              value={fromCity}
-              onChange={(e) => setFromCity(e.target.value)}
-            >
-              <option value="">Vyberte</option>
-              <option value="mesto01">Město 01</option>
-              <option value="mesto02">Město 02</option>
-              <option value="mesto03">Město 03</option>
-              <option value="mesto04">Město 04</option>
-              <option value="mesto05">Město 05</option>
-            </select> */}
           </label>
           <label>
             <div className="journey-picker__label">Kam:</div>
@@ -94,14 +91,6 @@ export const JourneyPicker = ({ onJourneyChange }) => {
               onChange={(e) => setToCity(e.target.value)}
               dataCities={cities}
             />
-            {/*   <select value={toCity} onChange={(e) => setToCity(e.target.value)}> 
-              <option value="">Vyberte</option>
-              <option value="mesto01">Město 01</option>
-              <option value="mesto02">Město 02</option>
-              <option value="mesto03">Město 03</option>
-              <option value="mesto04">Město 04</option>
-              <option value="mesto05">Město 05</option>
-            </select>*/}
           </label>
           <label>
             <div className="journey-picker__label">Datum:</div>
@@ -110,17 +99,13 @@ export const JourneyPicker = ({ onJourneyChange }) => {
               onChange={(e) => setDate(e.target.value)}
               datadates={dates}
             />
-            {/*          <select value={date} onChange={(e) => setDate(e.target.value)}>
-              <option value="">Vyberte</option>
-              <option value="datum01">Datum 01</option>
-              <option value="datum02">Datum 02</option>
-              <option value="datum03">Datum 03</option>
-              <option value="datum04">Datum 04</option>
-              <option value="datum05">Datum 05</option>
-            </select> */}
           </label>
           <div className="journey-picker__controls">
-            <button className="btn" type="submit">
+            <button
+              className="btn"
+              type="submit"
+              disabled={!(fromCity && toCity && date)}
+            >
               Vyhledat spoj
             </button>
           </div>
