@@ -6,6 +6,7 @@ export const JourneyPicker = ({ onJourneyChange }) => {
   const [toCity, setToCity] = useState('');
   const [date, setDate] = useState('');
   const [cities, setCities] = useState([]);
+  const [dates, setDates] = useState([]);
 
   useEffect(() => {
     const fetchCity = async () => {
@@ -16,6 +17,15 @@ export const JourneyPicker = ({ onJourneyChange }) => {
       setCities(responseData.results);
     };
     fetchCity();
+
+    const fetchDates = async () => {
+      const response = await fetch(
+        'https://apps.kodim.cz/daweb/leviexpress/api/dates',
+      );
+      const responseData = await response.json();
+      setDates(responseData.results);
+    };
+    fetchDates();
   }, []);
 
   const handleSubmit = (e) => {
@@ -24,9 +34,6 @@ export const JourneyPicker = ({ onJourneyChange }) => {
   };
 
   const CityOptions = ({ value, onChange, dataCities }) => {
-    dataCities.map((city) => {
-      <option value="mesto01">{city}</option>;
-    });
     return (
       <>
         <select value={value} onChange={onChange}>
@@ -34,6 +41,21 @@ export const JourneyPicker = ({ onJourneyChange }) => {
           {dataCities.map((city) => (
             <option key={city.code} value={city.name}>
               {city.name}
+            </option>
+          ))}
+        </select>
+      </>
+    );
+  };
+
+  const DatesOptions = ({ value, onChange, datadates }) => {
+    return (
+      <>
+        <select value={value} onChange={onChange}>
+          <option value="">Vyberte</option>
+          {datadates.map((data) => (
+            <option key={data.dateBasic} value={data.dateBasic}>
+              {data.dateCs}
             </option>
           ))}
         </select>
@@ -83,14 +105,19 @@ export const JourneyPicker = ({ onJourneyChange }) => {
           </label>
           <label>
             <div className="journey-picker__label">Datum:</div>
-            <select value={date} onChange={(e) => setDate(e.target.value)}>
+            <DatesOptions
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              datadates={dates}
+            />
+            {/*          <select value={date} onChange={(e) => setDate(e.target.value)}>
               <option value="">Vyberte</option>
               <option value="datum01">Datum 01</option>
               <option value="datum02">Datum 02</option>
               <option value="datum03">Datum 03</option>
               <option value="datum04">Datum 04</option>
               <option value="datum05">Datum 05</option>
-            </select>
+            </select> */}
           </label>
           <div className="journey-picker__controls">
             <button className="btn" type="submit">
